@@ -35,27 +35,46 @@ const bgColorMap: Record<string, string> = {
 };
 
 
+export default function FlexBlock50({
+  title,
+  text,
+  imageUrl,
+  imageAlt = 'Image',
+  imgPosition = 'right',
+  BgColor,
+  txtColor
+}: FlexBlock50) {
+  const isImageLeft = imgPosition === 'left';
+  const defaultTxtColor = txtColor || 'black';
+  const defaultBgColor = BgColor || 'graytres';
 
-export default function FlexBlock50({ title, text, imageUrl, imageAlt = 'Image',  imgPosition = 'right',BgColor,txtColor }: FlexBlock50) {
- 
-   const isImageLeft = imgPosition === 'left';
-   const defaultTxtColor = txtColor || 'black'; // Default background color
-   const defaultBgColor = BgColor || 'graytres'; // Default text color
-    return (
-    <section className={`py-20 px-4 ${bgColorMap[defaultBgColor] }`}>
+  return (
+    <section className={`py-20 px-4 ${bgColorMap[defaultBgColor]}`}>
       {/* Title */}
-    <h2 className={`text-3xl font-bold ${TxtColorMap[defaultTxtColor] } mb-10 max-w-6xl mx-auto text-left`}>
+      <h2 className={`text-3xl font-bold ${TxtColorMap[defaultTxtColor]} mb-10 max-w-6xl mx-auto text-left`}>
         {title}
-    </h2>   
-         {/* Flex Row with conditional reverse */}
+      </h2>
+
+      {/* Flex Row with conditional reverse */}
       <div
         className={`flex flex-col ${
           isImageLeft ? 'md:flex-row-reverse' : 'md:flex-row'
         } max-w-6xl mx-auto gap-8 items-center`}
       >
-        {/* Left Block - Text */}
-        <div className="w-full">
-          <p className={`${TxtColorMap[defaultTxtColor] } text-lg leading-relaxed`}>{text}</p>
+        {/* Text Block */}
+        <div className="w-full md:w-1/2">
+          <p className={`${TxtColorMap[defaultTxtColor]} text-lg leading-relaxed`}>{text}</p>
+        </div>
+
+        {/* Image Block */}
+        <div className="w-full md:w-1/2">
+          <Image
+            src={imageUrl}
+            alt={imageAlt}
+            width={600}
+            height={400}
+            className="rounded-lg shadow-md"
+          />
         </div>
       </div>
     </section>

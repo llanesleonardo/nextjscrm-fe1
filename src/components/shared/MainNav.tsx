@@ -1,9 +1,17 @@
 import Link from 'next/link';
+import { cookies } from 'next/headers';
 
-export default function MainNav() {
+export default async function MainNav() {
+  const cookieStore = await cookies();  // await cookies()
+  const token = cookieStore.get('token')?.value;
+  const isLoggedIn = !!token;
+  //const isLoggedIn =true; // Check if token exists to determine login status
   return (
-           <nav className="space-x-6">
-          <Link href="/" className="text-white hover:underline">
+    <nav className="space-x-6">
+   
+
+     
+            <Link href="/" className="text-white hover:underline">
             Home
           </Link>
           <Link href="/about" className="text-white hover:underline">
@@ -27,6 +35,20 @@ export default function MainNav() {
           <Link href="/signup" className="text-white hover:underline">
             Sign Up
           </Link>
-        </nav>
-  )
+          <Link href="/account/dashboard" className="text-white hover:underline">
+            Dashboard
+          </Link>
+          <Link href="/account/profiles" className="text-white hover:underline">
+            Profile
+          </Link>
+        <form action="/logout" method="POST" className="inline">
+          <button
+            type="submit"
+            className="text-white hover:underline bg-transparent border-none cursor-pointer"
+          >
+            Logout
+          </button>
+        </form>
+    </nav>
+  );
 }
