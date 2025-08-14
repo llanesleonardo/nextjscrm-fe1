@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Form, Input, Button, Select, DatePicker, message, Card, Row, Col, Divider } from 'antd';
-import { UserOutlined, PhoneOutlined, MailOutlined, EnvironmentOutlined, BankOutlined, GlobalOutlined } from '@ant-design/icons';
+import { Form, Input, Select, DatePicker, message, Card, Row, Col, Divider } from 'antd';
+import { UserOutlined, PhoneOutlined, MailOutlined, EnvironmentOutlined, BankOutlined, GlobalOutlined, CloseOutlined, SaveOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
+import ActionsBarComponent from '@/components/shared/ActionsBarComponent';
+import dayjs from 'dayjs';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -63,15 +65,39 @@ export default function LeadForm({ initialValues, onSubmit, isEdit = false }: Le
     }
   };
 
-  const onCancel = () => {
-    if (isEdit) {
-      // For edit mode, we don't navigate away since it's in a modal
-      return;
-    }
-    router.push('/account/leads');
+  const ActionsBarComponentProps = {
+    items: [
+      {
+        title: 'Leads',
+        description: 'Manage your leads',
+        buttonText: 'Cancel',
+        buttonLink: '/account/leads',
+        buttonColor: 'default' as const,
+        ButtonDisplay: 'outlined' as const,
+        icon: <CloseOutlined />,
+        onClick: () => router.push('/account/leads'),
+        loading: false,
+      },
+      {
+        title: 'Leads',
+        description: 'Manage your leads',
+        buttonText: isEdit ? 'Update Lead' : 'Create Lead',
+        buttonLink: '#',
+        buttonColor: 'primary' as const,
+        ButtonDisplay: 'solid' as const,
+        icon: <SaveOutlined />,
+        onClick: () => form.submit(),
+        loading: loading,
+      },
+    ],
   };
 
   return (
+    <>
+    <div className="flex justify-between items-center">
+    <h1 className="text-2xl font-bold mb-6 text-slate-800">{isEdit ? 'Edit Lead' : 'Add New Lead'}</h1>
+    <ActionsBarComponent items={ActionsBarComponentProps.items} />
+  </div>
     <Card>
       <Form
         form={form}
@@ -84,8 +110,8 @@ export default function LeadForm({ initialValues, onSubmit, isEdit = false }: Le
           ...initialValues,
           expectedCloseDate: initialValues?.expectedCloseDate ? 
             (typeof initialValues.expectedCloseDate === 'string' ? 
-              new Date(initialValues.expectedCloseDate) : 
-              initialValues.expectedCloseDate) : 
+              dayjs(initialValues.expectedCloseDate) : 
+              dayjs(initialValues.expectedCloseDate)) : 
             undefined
         }}
       >
@@ -290,20 +316,8 @@ export default function LeadForm({ initialValues, onSubmit, isEdit = false }: Le
           <TextArea rows={4} placeholder="Additional notes about the lead" />
         </Form.Item>
 
-        {/* Form Actions */}
-        <Form.Item>
-          <div className="flex gap-4 justify-end">
-            {!isEdit && (
-              <Button onClick={onCancel}>
-                Cancel
-              </Button>
-            )}
-            <Button type="primary" htmlType="submit" loading={loading}>
-              {isEdit ? 'Update Lead' : 'Create Lead'}
-            </Button>
-          </div>
-        </Form.Item>
       </Form>
     </Card>
+    </>
   );
 }

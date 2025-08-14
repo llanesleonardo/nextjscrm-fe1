@@ -4,8 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Card, Button, Descriptions, Tag, Space, Modal, message } from 'antd';
 import { EditOutlined, DeleteOutlined, ArrowLeftOutlined } from '@ant-design/icons';
-import LeadForm from '../components/LeadForm';
-
+import ActionsBarComponent from '@/components/shared/ActionsBarComponent';
 interface LeadData {
   id: string;
   firstName: string;
@@ -29,32 +28,12 @@ interface LeadData {
   updatedAt: string;
 }
 
-interface LeadFormValues {
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  phone?: string;
-  company?: string;
-  jobTitle?: string;
-  industry?: string;
-  website?: string;
-  address?: string;
-  city?: string;
-  state?: string;
-  zipCode?: string;
-  country?: string;
-  leadSource?: string;
-  leadStatus?: string;
-  notes?: string;
-  expectedCloseDate?: Date;
-}
 
 export default function LeadDetailPage() {
   const params = useParams();
   const router = useRouter();
   const [lead, setLead] = useState<LeadData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [editModalVisible, setEditModalVisible] = useState(false);
 
 
   useEffect(() => {
@@ -125,24 +104,8 @@ export default function LeadDetailPage() {
   };
 
   const handleEdit = () => {
-    setEditModalVisible(true);
-  };
-
-  const handleEditSubmit = async (values: LeadFormValues) => {
-    try {
-      // Here you would update the lead in your API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setLead({ 
-        ...lead!, 
-        ...values,
-        expectedCloseDate: values.expectedCloseDate ? values.expectedCloseDate.toISOString().split('T')[0] : lead!.expectedCloseDate
-      } as LeadData);
-      setEditModalVisible(false);
-      message.success('Lead updated successfully');
-    } catch (error) {
-      message.error('Failed to update lead');
-      console.error('Error updating lead:', error);
-    }
+    // Navigate to the edit page with the lead ID
+    router.push(`/account/leads/edit?id=${params.id}`);
   };
 
   if (loading) {
@@ -177,9 +140,37 @@ export default function LeadDetailPage() {
     return colors[status] || 'default';
   };
 
+
+  const ActionsBarComponentProps = {
+    items: [
+     
+      {
+        title: 'Leads',
+          description: 'Manage your leads',
+          buttonText: 'Edit',
+          buttonLink: '#',
+          buttonColor: 'primary' as const,
+          ButtonDisplay: 'solid' as const,
+          icon: <EditOutlined />,
+          onClick: handleEdit,
+        },
+        {
+          title: 'Leads',
+        description: 'Manage your leads',
+        buttonText: 'Delete',
+        buttonLink: '#',
+        buttonColor: 'error' as const,
+        ButtonDisplay: 'solid' as const,
+        icon: <DeleteOutlined />,
+        onClick: handleDelete,
+      },
+
+    ],
+  };
+
   return (
     <div className="p-6">
-      <div className="max-w-4xl mx-auto">
+      <div className="w-full mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
@@ -197,25 +188,13 @@ export default function LeadDetailPage() {
             </Tag>
           </div>
           <Space>
-            <Button 
-              type="primary" 
-              icon={<EditOutlined />}
-              onClick={handleEdit}
-            >
-              Edit
-            </Button>
-            <Button 
-              danger 
-              icon={<DeleteOutlined />}
-              onClick={handleDelete}
-            >
-              Delete
-            </Button>
+            <ActionsBarComponent items={ActionsBarComponentProps.items} />
           </Space>
         </div>
 
         {/* Lead Details */}
-        <Card title="Lead Information" className="mb-6">
+        <div className="mb-6">
+        <Card title="Lead Information">
           <Descriptions column={2} bordered>
             <Descriptions.Item label="Full Name">
               {lead.firstName} {lead.lastName}
@@ -253,9 +232,10 @@ export default function LeadDetailPage() {
             </Descriptions.Item>
           </Descriptions>
         </Card>
-
+        </div>
         {/* Address Information */}
-        <Card title="Address Information" className="mb-6">
+        <div className="mb-6">
+        <Card title="Address Information">
           <Descriptions column={1} bordered>
             <Descriptions.Item label="Address">
               {lead.address}
@@ -272,9 +252,9 @@ export default function LeadDetailPage() {
             <Descriptions.Item label="Country">
               {lead.country}
             </Descriptions.Item>
-          </Descriptions>
-        </Card>
-
+            </Descriptions>
+          </Card>
+        </div>
         {/* Notes */}
         {lead.notes && (
           <Card title="Notes">
@@ -282,23 +262,6 @@ export default function LeadDetailPage() {
           </Card>
         )}
 
-        {/* Edit Modal */}
-        <Modal
-          title="Edit Lead"
-          open={editModalVisible}
-          onCancel={() => setEditModalVisible(false)}
-          footer={null}
-          width={800}
-        >
-          <LeadForm 
-            initialValues={{
-              ...lead,
-              expectedCloseDate: lead.expectedCloseDate ? new Date(lead.expectedCloseDate) : undefined
-            }}
-            onSubmit={handleEditSubmit}
-            isEdit={true}
-          />
-        </Modal>
       </div>
     </div>
   );
