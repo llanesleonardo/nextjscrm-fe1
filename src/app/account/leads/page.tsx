@@ -1,25 +1,24 @@
 'use client';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import TableComponent from '@/components/shared/TableComponent';
 import ActionsBarComponent from '@/components/shared/ActionsBarComponent';
+import { Skeleton } from 'antd';
 import { FileOutlined, UsergroupAddOutlined } from '@ant-design/icons';
+import { getAllLeads } from './actions';
+import type { LeadFormData } from './types';
 
-interface LeadData {
-  key: string;
-  name: string;
-  company: string;
-  email: string;
-  phone: string;
-  status: string;
-  leadSource: string;
-}
 
 const columns = [
   {
+    title: 'ID',
+    dataIndex: 'id',
+    render: (text: React.ReactNode) => <span>{text}</span>,
+  },
+  {
     title: 'Name',
-    dataIndex: 'name',
-    render: (text: React.ReactNode, record?: LeadData) => (
-      <a href={`/account/leads/${record?.key}`}>{text}</a>
+    dataIndex: 'firstName',
+    render: (text: React.ReactNode, record: any) => (
+      <a href={`/account/leads/${record?.id}`}>{record?.firstName} {record?.lastName}</a>
     ),
   },
   {
@@ -39,7 +38,7 @@ const columns = [
   },
   {
     title: 'Status',
-    dataIndex: 'status',
+    dataIndex: 'leadStatus', // Change from 'status' to 'leadStatus'
     render: (text: React.ReactNode) => {
       const status = text as string;
       const colors: { [key: string]: string } = {
@@ -61,44 +60,6 @@ const columns = [
   },
 ];
 
-const data = [
-  {
-    key: '1',
-    name: 'John Doe',
-    company: 'Tech Solutions Inc.',
-    email: 'john.doe@techsolutions.com',
-    phone: '+1 (555) 123-4567',
-    status: 'Qualified',
-    leadSource: 'Website',
-  },
-  {
-    key: '2',
-    name: 'Jane Smith',
-    company: 'Healthcare Plus',
-    email: 'jane.smith@healthcare.com',
-    phone: '+1 (555) 987-6543',
-    status: 'Contacted',
-    leadSource: 'Referral',
-  },
-  {
-    key: '3',
-    name: 'Mike Johnson',
-    company: 'Finance Corp',
-    email: 'mike.johnson@finance.com',
-    phone: '+1 (555) 456-7890',
-    status: 'New',
-    leadSource: 'Social Media',
-  },
-  {
-    key: '4',
-    name: 'Sarah Wilson',
-    company: 'Education First',
-    email: 'sarah.wilson@education.com',
-    phone: '+1 (555) 321-0987',
-    status: 'Proposal',
-    leadSource: 'Email Campaign',
-  },
-];
 
 const ActionsBarComponentProps = {
    items: [
@@ -124,9 +85,38 @@ const ActionsBarComponentProps = {
 };
 
 export default function Leads() {
+  const [loading, setLoading] = useState(true);
+  const [tableData, setTableData] = useState<LeadFormData[]>([]);
+
+  useEffect(() => {
+    const loadLeads = async () => {
+      try {
+        setLoading(true);
+        console.log('=== LOADING LEADS ===');
+        const leads = await getAllLeads();
+        console.log('Leads fetched from server:', leads);
+        
+        // Add key property to each lead for the table
+        const leadsWithKey = leads.map(lead => ({
+          ...lead,
+          key: lead.id // Use the id as the key
+        }));
+        console.log('Leads with keys:', leadsWithKey);
+        setTableData(leadsWithKey);
+      } catch (error) {
+        console.error('Error loading leads:', error);
+        // You might want to show an error message here
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadLeads();
+  }, []);
+
   const TableComponentProps = {
     columns: columns,
-    dataSource: data,
+    dataSource: tableData,
   };
   return (
     <div>
@@ -138,8 +128,16 @@ export default function Leads() {
       </section>
 
       <section>
-        <div className='pl-5'>
-          <TableComponent {...TableComponentProps} />
+      <div className='pl-5'>
+          {loading ? (
+            <Skeleton 
+              active 
+              paragraph={{ rows: 8 }} 
+              title={{ width: '100%' }}
+            />
+          ) : (
+            <TableComponent {...TableComponentProps} />
+          )}
         </div>
         </section>
     </div>

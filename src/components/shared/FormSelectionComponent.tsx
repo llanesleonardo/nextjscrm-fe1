@@ -1,53 +1,29 @@
 // create  a functional component that will be used to select a form from a list of forms
-
-import LeadForm from '@/app/account/leads/components/LeadForm';
 import React from 'react';
+import LeadForm from '@/app/account/leads/components/LeadForm';
 
-interface LeadFormData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  company: string;
-  jobTitle: string;
-  industry: string;
-  website: string;
-  address: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  country: string;
-  leadSource: string;
-  leadStatus: string;
-  notes: string;
-  expectedCloseDate: Date;
-}
 
 export default function FormSelectionComponent({ 
   formName, 
-  initialValues, 
-  onSubmit, 
   isEdit = false 
 }: { 
   formName: string; 
   isEdit?: boolean; 
-  initialValues?: Partial<LeadFormData>; 
-  onSubmit?: (values: LeadFormData) => Promise<void>; 
   onCancel?: () => void; 
 }) {
   switch (formName) {
     case 'lead':
-      return <LeadForm initialValues={initialValues} onSubmit={onSubmit} isEdit={isEdit} />;
+      return <LeadForm  isEdit={isEdit} />;
     case 'company':
-      return <LeadForm />;
+      return <LeadForm isEdit={isEdit} />;
     case 'contact':
-      return <LeadForm />;
+      return <LeadForm isEdit={isEdit} />;
     case 'opportunity':
-      return <LeadForm />;
+      return <LeadForm isEdit={isEdit} />;
     case 'task':
-      return <LeadForm />;
+      return <LeadForm isEdit={isEdit} />;
     case 'event':
-      return <LeadForm />;
+      return <LeadForm isEdit={isEdit} />;
     default:
       return <div>Please select a valid form.</div>;
   }
